@@ -208,6 +208,8 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
         self.sleep(2)
         try:
             # when rebalance is in progress, run create index
+            log.info("gonna rebal now")
+
             self.n1ql_helper.run_cbq_query(
                 query="CREATE INDEX " + index_name_prefix + " ON default(age) USING GSI  WITH {'defer_build': True};",
                 server=self.n1ql_node)
