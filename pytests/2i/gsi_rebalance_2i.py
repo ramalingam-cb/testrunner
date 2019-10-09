@@ -208,7 +208,7 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
         reached = RestHelper(self.rest).rebalance_reached(percentage=25)
         try:
             # when rebalance is in progress, run create index
-            log.info("gonna rebal now updated defer idx param")
+            log.info("gonna rebal now updated defer idx param updated rebal reached")
 
             self.n1ql_helper.run_cbq_query(
                 query="CREATE INDEX " + index_name_prefix + " ON default(age) USING GSI;",
