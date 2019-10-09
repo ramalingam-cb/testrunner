@@ -205,7 +205,7 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
         rebalance.result()
         # rebalance out a node
         rebalance = self.cluster.async_rebalance(self.servers[:self.nodes_init], [], [index_server])
-        self.sleep(2)
+        reached = RestHelper(self.rest).rebalance_reached(percentage=25)
         try:
             # when rebalance is in progress, run create index
             log.info("gonna rebal now updated defer idx param")
