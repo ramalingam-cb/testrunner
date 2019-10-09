@@ -205,10 +205,16 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
         rebalance.result()
         # rebalance out a node
         rebalance = self.cluster.async_rebalance(self.servers[:self.nodes_init], [], [index_server])
-        reached = RestHelper(self.rest).rebalance_reached(percentage=25)
+        for x in range(1000):
+          progress = self.rest._rebalance_progress()
+          log.info("x:")
+          log.info(str(progress))
+
+        
+        
         try:
             # when rebalance is in progress, run create index
-            log.info("gonna rebal now updated defer idx param updated rebal reached")
+            log.info("gonna rebal now updated defer idx param updated rebal manual")
 
             self.n1ql_helper.run_cbq_query(
                 query="CREATE INDEX " + index_name_prefix + " ON default(age) USING GSI;",
