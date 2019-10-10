@@ -205,7 +205,7 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
         rebalance.result()
         # rebalance out a node
         rebalance = self.cluster.async_rebalance(self.servers[:self.nodes_init], [], [index_server])
-        rebalance_started = RestHelper(self.rest).rebalance_reached(percentage=10,check_time_interval=10/1000,retry_count=1000)
+        rebalance_started = RestHelper(self.rest).rebalance_reached(percentage=10,check_time_interval=1/10000,retry_count=1000)
         log.info("rebal started return value")
         log.info(rebalance_started)
 
