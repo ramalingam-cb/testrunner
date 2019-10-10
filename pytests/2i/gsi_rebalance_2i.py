@@ -205,30 +205,27 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
         rebalance.result()
         # rebalance out a node
         rebalance = self.cluster.async_rebalance(self.servers[:self.nodes_init], [], [index_server])
-        for x in range(1000):
-          progress = self.rest._rebalance_progress()
-          log.info("x:")
-          log.info(str(progress))
+        rebalance_started = RestHelper(self.rest).rebalance_reached(percentage=10,check_time_interval=10/1000,retry_count=1000)
+        log.info("rebal started return value")
+        log.info(rebalance_started)
 
-        
-        
-        try:
-            # when rebalance is in progress, run create index
-            log.info("gonna rebal now updated defer idx param updated rebal manual")
-
-            self.n1ql_helper.run_cbq_query(
-                query="CREATE INDEX " + index_name_prefix + " ON default(age) USING GSI;",
-                server=self.n1ql_node)
-        except Exception, ex:
-            log.info(str(ex))
-            if "Create index or Alter replica cannot proceed due to rebalance in progress" not in str(ex):
-                self.fail("index creation did not fail with expected error : {0}".format(str(ex)))
-        else:
-            self.fail("index creation did not fail as expected")
-        self.run_operation(phase="during")
-        reached = RestHelper(self.rest).rebalance_reached()
-        self.assertTrue(reached, "rebalance failed, stuck or did not complete")
-        rebalance.result()
+        if rebalance_started:
+          try:
+              self.n1ql_helper.run_cbq_query(
+                  query="CREATE INDEX " + index_name_prefix + " ON default(age) USING GSI;",
+                  server=self.n1ql_node)
+          except Exception, ex:
+              log.info(str(ex))
+              if "Create index or Alter replica cannot proceed due to rebalance in progress" not in str(ex):
+                  self.fail("index creation did not fail with expected error : {0}".format(str(ex)))
+          else:
+              self.fail("index creation did not fail as expected")
+          self.run_operation(phase="during")
+          reached = RestHelper(self.rest).rebalance_reached()
+          self.assertTrue(reached, "rebalance failed, stuck or did not complete")
+          rebalance.result()
+         else:
+          log.info("test case did not start")
 
     def test_drop_index_when_gsi_rebalance_in_progress(self):
         index_server = self.get_nodes_from_services_map(service_type="index", get_all_nodes=False)
