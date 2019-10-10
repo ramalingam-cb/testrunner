@@ -220,10 +220,10 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
                   self.fail("index creation did not fail with expected error : {0}".format(str(ex)))
           else:
               self.fail("index creation did not fail as expected")
-          self.run_operation(phase="during")
-          reached = RestHelper(self.rest).rebalance_reached()
-          self.assertTrue(reached, "rebalance failed, stuck or did not complete")
-          rebalance.result()
+              self.run_operation(phase="during")
+              reached = RestHelper(self.rest).rebalance_reached()
+              self.assertTrue(reached, "rebalance failed, stuck or did not complete")
+              rebalance.result()
          else:
           log.info("test case did not start")
 
