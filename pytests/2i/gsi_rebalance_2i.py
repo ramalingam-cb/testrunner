@@ -218,13 +218,13 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
               log.info(str(ex))
               if "Create index or Alter replica cannot proceed due to rebalance in progress" not in str(ex):
                   self.fail("index creation did not fail with expected error : {0}".format(str(ex)))
-          else:
-              self.fail("index creation did not fail as expected")
-              self.run_operation(phase="during")
-              reached = RestHelper(self.rest).rebalance_reached()
-              self.assertTrue(reached, "rebalance failed, stuck or did not complete")
-              rebalance.result()
-         else:
+              else:
+                  self.fail("index creation did not fail as expected")
+                  self.run_operation(phase="during")
+                  reached = RestHelper(self.rest).rebalance_reached()
+                  self.assertTrue(reached, "rebalance failed, stuck or did not complete")
+                  rebalance.result()
+        else:
           log.info("test case did not start")
 
     def test_drop_index_when_gsi_rebalance_in_progress(self):
