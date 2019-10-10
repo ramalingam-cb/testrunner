@@ -215,19 +215,20 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
             log.info(progress)
               
         try:
-            self.n1ql_helper.run_cbq_query(query="CREATE INDEX " + index_name_prefix + " ON default(age) USING GSI;",server=self.n1ql_node)
-            dt = datetime.now()
-            log.info(str(dt.microsecond))
+            # when rebalance is in progress, run create index
+            self.n1ql_helper.run_cbq_query(
+                query="CREATE INDEX " + index_name_prefix + " ON default(age) USING GSI  WITH {'defer_build': True};",
+                server=self.n1ql_node)
         except Exception, ex:
             log.info(str(ex))
             if "Create index or Alter replica cannot proceed due to rebalance in progress" not in str(ex):
                 self.fail("index creation did not fail with expected error : {0}".format(str(ex)))
-            else:
-                self.fail("index creation did not fail as expected")
-                self.run_operation(phase="during")
-                reached = RestHelper(self.rest).rebalance_reached()
-                self.assertTrue(reached, "rebalance failed, stuck or did not complete")
-                rebalance.result()
+        else:
+            self.fail("index creation did not fail as expected")
+        self.run_operation(phase="during")
+        reached = RestHelper(self.rest).rebalance_reached()
+        self.assertTrue(reached, "rebalance failed, stuck or did not complete")
+        rebalance.result()
  
 
     def test_drop_index_when_gsi_rebalance_in_progress(self):
