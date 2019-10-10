@@ -204,18 +204,20 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
                                                  services=services_in)
         rebalance.result()
         log.info("gonna rebal nodesss")
-        # rebalance out a node
+        dt = datetime.now()
+        log.info(str(dt.microsecond))
+  # rebalance out a node
         rebalance = self.cluster.async_rebalance(self.servers[:self.nodes_init], [], [index_server])
-
+  
         for x in range(1000):
             progress = self.rest._rebalance_progress()
             log.info("curr progre::")
             log.info(progress)
-            if progress > 0:
-              break
               
         try:
             self.n1ql_helper.run_cbq_query(query="CREATE INDEX " + index_name_prefix + " ON default(age) USING GSI;",server=self.n1ql_node)
+            dt = datetime.now()
+            log.info(str(dt.microsecond))
         except Exception, ex:
             log.info(str(ex))
             if "Create index or Alter replica cannot proceed due to rebalance in progress" not in str(ex):
