@@ -205,9 +205,18 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
         rebalance.result()
         # rebalance out a node
         rebalance = self.cluster.async_rebalance(self.servers[:self.nodes_init], [], [index_server])
-        rebalance_started = RestHelper(self.rest).rebalance_reached(percentage=10,check_time_interval=1/10000,retry_count=1000)
+        retry = 0
+        progress = 0
+        while progress is not -1 and progress == 0 and retry < 10000:
+            # -1 is error , -100 means could not retrieve progress
+            progress = self.rest._rebalance_progress()
+            if progress == -100:
+                log.error("unable to retrieve rebalanceProgress.try again in 2 seconds")
+                retry += 1
+        rebalance_started = (progress > 0)
         log.info("rebal started return value")
         log.info(rebalance_started)
+        log.info(str(progress))
 
         if rebalance_started:
           try:
