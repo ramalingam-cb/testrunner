@@ -47,7 +47,8 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
             self.rest.load_sample("travel-sample")
 
     def tearDown(self):
-        super(SecondaryIndexingRebalanceTests, self).tearDown()
+        #super(SecondaryIndexingRebalanceTests, self).tearDown()
+        pass
 
     def test_gsi_rebalance_out_indexer_node(self):
         self.run_operation(phase="before")
