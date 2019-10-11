@@ -206,10 +206,7 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
         rebalance.result()
         # rebalance out a node
         rebalance = self.cluster.async_rebalance(self.servers[:self.nodes_init], [], [index_server])
-        log.info("curr time before starting tc")
-        log.info(str(int(round(time.time() * 1000))))
-        for x in range(1000):
-          progress = self.rest._rebalance_progress()
+        self.sleep(4)
         try:
             # when rebalance is in progress, run create index
             self.n1ql_helper.run_cbq_query(
@@ -221,8 +218,6 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
                 self.fail("index creation did not fail with expected error : {0}".format(str(ex)))
         else:
             self.fail("index creation did not fail as expected")
-        log.info("curr time after tc")
-        log.info(str(int(round(time.time() * 1000))))
         self.run_operation(phase="during")
         reached = RestHelper(self.rest).rebalance_reached()
         self.assertTrue(reached, "rebalance failed, stuck or did not complete")
