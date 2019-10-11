@@ -203,17 +203,13 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
         rebalance = self.cluster.async_rebalance(self.servers[:self.nodes_init], [self.servers[self.nodes_init]], [],
                                                  services=services_in)
         rebalance.result()
-        log.info("gonna rebal nodesss")
-        dt = datetime.now()
-        log.info(str(dt.microsecond))
-  # rebalance out a node
+        # rebalance out a node
         rebalance = self.cluster.async_rebalance(self.servers[:self.nodes_init], [], [index_server])
-  
+        dt = datetime.now()
+        log.info("curr time before starting tc")
+        log.info(str(dt.microsecond))
         for x in range(1000):
-            progress = self.rest._rebalance_progress()
-            log.info("curr progre::")
-            log.info(progress)
-              
+          progress = self.rest._rebalance_progress()
         try:
             # when rebalance is in progress, run create index
             self.n1ql_helper.run_cbq_query(
@@ -225,11 +221,13 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
                 self.fail("index creation did not fail with expected error : {0}".format(str(ex)))
         else:
             self.fail("index creation did not fail as expected")
+        dt = datetime.now()
+        log.info("curr time after tc")
+        log.info(str(dt.microsecond))
         self.run_operation(phase="during")
         reached = RestHelper(self.rest).rebalance_reached()
         self.assertTrue(reached, "rebalance failed, stuck or did not complete")
         rebalance.result()
- 
 
     def test_drop_index_when_gsi_rebalance_in_progress(self):
         index_server = self.get_nodes_from_services_map(service_type="index", get_all_nodes=False)
