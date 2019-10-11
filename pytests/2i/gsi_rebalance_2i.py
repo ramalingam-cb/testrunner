@@ -5,6 +5,7 @@ from base_2i import BaseSecondaryIndexingTests, log
 from membase.api.rest_client import RestConnection, RestHelper
 import random
 import threading
+import time
 from lib import testconstants
 from lib.couchbase_helper.query_definitions import SQLDefinitionGenerator, QueryDefinition, RANGE_SCAN_TEMPLATE
 from lib.couchbase_helper.tuq_generators import TuqGenerators
@@ -205,9 +206,8 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
         rebalance.result()
         # rebalance out a node
         rebalance = self.cluster.async_rebalance(self.servers[:self.nodes_init], [], [index_server])
-        dt = datetime.now()
         log.info("curr time before starting tc")
-        log.info(str(dt.microsecond))
+        log.info(str(int(round(time.time() * 1000))))
         for x in range(1000):
           progress = self.rest._rebalance_progress()
         try:
@@ -221,9 +221,8 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
                 self.fail("index creation did not fail with expected error : {0}".format(str(ex)))
         else:
             self.fail("index creation did not fail as expected")
-        dt = datetime.now()
         log.info("curr time after tc")
-        log.info(str(dt.microsecond))
+        log.info(str(int(round(time.time() * 1000))))
         self.run_operation(phase="during")
         reached = RestHelper(self.rest).rebalance_reached()
         self.assertTrue(reached, "rebalance failed, stuck or did not complete")
