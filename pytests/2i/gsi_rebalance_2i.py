@@ -722,11 +722,10 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
         t1 = threading.Thread(target=self._create_replica_index, args=(create_index_query,))
         t1.start()
         try:
-            rebalance = self.cluster.async_rebalance(self.servers[:self.nodes_init], to_add_nodes, [],
+            rebalance = self.cluster.rebalance(self.servers[:self.nodes_init], to_add_nodes, [],
                                                      services=services_in)
-            reached = RestHelper(self.rest).rebalance_reached()
-            self.assertTrue(reached, "rebalance failed, stuck or did not complete")
-            rebalance.result()
+            log.info("rebal result:")
+            log.infor(str(rebalance))
         except Exception, ex:
             log.info(
                 "If there are multiple services in the cluster and rebalance is done, all services get the request to rebalance.\
