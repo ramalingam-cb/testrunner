@@ -2766,11 +2766,11 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
                                                          services=services_in)
             for x in range(10000):
               progress = self.rest._rebalance_progress()
-              if progress > 0:
-                break
               log.info(str(int(round(time.time() * 1000))))
               log.info(str(progress))
-
+              if progress > 0:
+                break
+              
             
             # reboot an index node during gsi rebalance
             if not self.build_index:
