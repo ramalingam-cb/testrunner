@@ -2768,7 +2768,7 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
 
             
             # reboot an index node during gsi rebalance
-            self.sleep(6)
+            self.sleep(3.30)
             if not self.build_index:
                 self.reboot_node(index_server)
             reached = RestHelper(self.rest).rebalance_reached()
