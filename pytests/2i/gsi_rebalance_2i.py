@@ -2764,8 +2764,10 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
                 rebalance = self.cluster.async_rebalance(self.servers[:self.nodes_init],
                                                          [self.servers[self.nodes_init]], [],
                                                          services=services_in)
-            for x in range(220):
+            for x in range(10000):
               progress = self.rest._rebalance_progress()
+              if progress > 0:
+                break
               log.info(str(int(round(time.time() * 1000))))
               log.info(str(progress))
 
