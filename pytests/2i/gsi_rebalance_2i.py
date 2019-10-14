@@ -2762,7 +2762,13 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
                 rebalance = self.cluster.async_rebalance(self.servers[:self.nodes_init],
                                                          [self.servers[self.nodes_init]], [],
                                                          services=services_in)
+            for x in range(1000):
+              progress = self.rest._rebalance_progress()
+              self.log.info(str(progress))
             self.sleep(4)
+            self.log.info("idx node:")
+            self.log.info(str(index_server))
+            
             # reboot an index node during gsi rebalance
             if not self.build_index:
                 self.reboot_node(index_server)
