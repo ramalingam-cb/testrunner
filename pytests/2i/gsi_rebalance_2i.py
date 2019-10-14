@@ -2765,8 +2765,8 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
                                                          services=services_in)
             for x in range(500):
               progress = self.rest._rebalance_progress()
-              self.log.info(str(int(round(time.time() * 1000)))
-              self.log.info(str(progress))
+              log.info(str(int(round(time.time() * 1000)))
+              log.info(str(progress))
 
             
             # reboot an index node during gsi rebalance
