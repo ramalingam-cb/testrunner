@@ -211,9 +211,11 @@ class QueryHelperTests(BaseTestCase):
         self.gen_results.query = query_definition.generate_query(bucket=bucket)
         if expected_result == None:
             expected_result = self.gen_results.generate_expected_result(
-                print_expected_result=False)
+                print_expected_result=True)
         query = self.gen_results.query
         log.info("Query : {0}".format(query))
+        log.info("expected result")
+        log.info(str(expected_result))
         msg, check = self.n1ql_helper.run_query_and_verify_result(
                 query=query, server=self.n1ql_server,
                 expected_result=expected_result, scan_consistency=scan_consistency,
