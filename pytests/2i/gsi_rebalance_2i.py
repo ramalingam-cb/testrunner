@@ -1,6 +1,7 @@
 import Queue
 from datetime import datetime
 
+
 from base_2i import BaseSecondaryIndexingTests, log
 from membase.api.rest_client import RestConnection, RestHelper
 import random
@@ -2764,6 +2765,7 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
                                                          services=services_in)
             for x in range(500):
               progress = self.rest._rebalance_progress()
+              self.log.info(str(int(round(time.time() * 1000)))
               self.log.info(str(progress))
 
             
