@@ -2765,7 +2765,7 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
                                                          services=services_in)
             for x in range(500):
               progress = self.rest._rebalance_progress()
-              log.info(str(int(round(time.time() * 1000)))
+              log.info(str(int(round(time.time() * 1000))))
               log.info(str(progress))
 
             
