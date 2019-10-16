@@ -1373,7 +1373,7 @@ class GSIIndexPartitioningTests(GSIReplicaIndexesTests):
         build_index_query = "BUILD INDEX on `default`(" + index_name_prefix + ")"
 
         try:
-            self.start_firewall_on_node(node_out)
+            #self.start_firewall_on_node(node_out)
             self.sleep(10)
             self.n1ql_helper.run_cbq_query(query=build_index_query,
                                            server=self.n1ql_node)
@@ -1387,7 +1387,7 @@ class GSIIndexPartitioningTests(GSIReplicaIndexesTests):
         finally:
             # Heal network partition and wait for some time to allow indexes
             # to get built automatically on that node
-            self.stop_firewall_on_node(node_out)
+            #self.stop_firewall_on_node(node_out)
             self.sleep(360)
 
             index_map = self.get_index_map()
