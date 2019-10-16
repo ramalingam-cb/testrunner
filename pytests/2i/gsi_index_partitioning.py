@@ -4445,6 +4445,7 @@ class GSIIndexPartitioningTests(GSIReplicaIndexesTests):
 
     def test_backup_restore_partitioned_index_default_num_partitions(self):
         self._load_emp_dataset(end=self.num_items)
+        self.log.info(self.rest.get_index_settings())
 
         index_details = []
         index_detail = {}
@@ -4501,10 +4502,12 @@ class GSIIndexPartitioningTests(GSIReplicaIndexesTests):
                                                     replicas=self.num_replicas)
 
         self.cluster.create_default_bucket(default_params)
+        self.log.info(self.rest.get_index_settings())
 
         # Set default number of partitions
         self.rest.set_index_settings(
             {"indexer.numPartitions": 4})
+        self.log.info(self.rest.get_index_settings())
 
         # Change expected num of partitions
         for index in index_details:
