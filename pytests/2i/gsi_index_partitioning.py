@@ -4455,7 +4455,7 @@ class GSIIndexPartitioningTests(GSIReplicaIndexesTests):
         index_detail["defer_build"] = False
         index_detail[
             "definition"] = "CREATE INDEX idx1 on default(name,dept) partition by hash(salary) USING GSI"
-        index_detail["num_partitions_post_restore"] = 4
+        index_detail["num_partitions_post_restore"] = 8
         index_details.append(index_detail)
         index_detail = {}
 
