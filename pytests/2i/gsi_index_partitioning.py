@@ -42,7 +42,8 @@ class GSIIndexPartitioningTests(GSIReplicaIndexesTests):
         self.index_partitioned = self.input.param('index_partitioned', False)
 
     def tearDown(self):
-        super(GSIIndexPartitioningTests, self).tearDown()
+        #super(GSIIndexPartitioningTests, self).tearDown()
+        pass
 
     '''Test that checks if hte last_known_scan_time stat is being set properly
         - Test explicitly calling a specific index to see if it is updated
