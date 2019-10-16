@@ -1344,6 +1344,9 @@ class GSIIndexPartitioningTests(GSIReplicaIndexesTests):
         node_list_str = "[\"" + "\",\"".join(self.node_list) + "\"]"
         create_index_query = "CREATE INDEX " + index_name_prefix + " ON default(name,dept,salary) partition by hash(name) USING GSI  WITH {{'num_partition': {0}, 'nodes': {1}, 'defer_build': true}};".format(
             self.num_index_partitions, node_list_str)
+        node_out = self.servers[self.node_out]
+        self.start_firewall_on_node(node_out)
+        
         try:
             self.n1ql_helper.run_cbq_query(query=create_index_query,
                                            server=self.n1ql_node)
@@ -1351,56 +1354,6 @@ class GSIIndexPartitioningTests(GSIReplicaIndexesTests):
             self.log.info(str(ex))
             self.fail("index creation failed with error : {0}".format(str(ex)))
 
-        self.sleep(10)
-        index_map = self.get_index_map()
-        self.log.info(index_map)
-
-        index_metadata = self.rest.get_indexer_metadata()
-        self.log.info("Indexer Metadata Before Build:")
-        self.log.info(index_metadata)
-
-        index_details = {}
-        index_details["index_name"] = index_name_prefix
-        index_details["num_partitions"] = self.num_index_partitions
-        index_details["defer_build"] = True
-
-        self.assertTrue(
-            self.validate_partitioned_indexes(index_details, index_map,
-                                              index_metadata),
-            "Deferred Partitioned index created not as expected")
-
-        node_out = self.servers[self.node_out]
-        build_index_query = "BUILD INDEX on `default`(" + index_name_prefix + ")"
-
-        try:
-            self.start_firewall_on_node(node_out)
-            #self.sleep(10)
-            self.n1ql_helper.run_cbq_query(query=build_index_query,
-                                           server=self.n1ql_node)
-        except Exception, ex:
-            self.log.info(str(ex))
-            if not "Index build will be retried in background" in str(ex):
-                self.fail("index building failed with error : {0}".format(str(ex)))
-            else:
-                self.log.info("Index build failed with expected error")
-
-        finally:
-            # Heal network partition and wait for some time to allow indexes
-            # to get built automatically on that node
-            self.stop_firewall_on_node(node_out)
-            self.sleep(360)
-
-            index_map = self.get_index_map()
-            index_metadata = self.rest.get_indexer_metadata()
-            self.log.info("Indexer Metadata After Build:")
-            self.log.info(index_metadata)
-
-            index_details["defer_build"] = False
-
-            self.assertTrue(
-                self.validate_partitioned_indexes(index_details, index_map,
-                                                  index_metadata),
-                "Deferred Partitioned index created not as expected")
 
     def test_drop_partitioned_index(self):
         self._load_emp_dataset(end=self.num_items)
