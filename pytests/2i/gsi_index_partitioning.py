@@ -1371,19 +1371,36 @@ class GSIIndexPartitioningTests(GSIReplicaIndexesTests):
 
         node_out = self.servers[self.node_out]
         build_index_query = "BUILD INDEX on `default`(" + index_name_prefix + ")"
-        self.log.info(str(build_index_query))
 
         try:
             self.start_firewall_on_node(node_out)
             self.sleep(10)
-            #self.n1ql_helper.run_cbq_query(query=build_index_query,
-            #                               server=self.n1ql_node)
+            self.n1ql_helper.run_cbq_query(query=build_index_query,
+                                           server=self.n1ql_node)
         except Exception, ex:
             self.log.info(str(ex))
-            if not "Index build will be retried in background" in str(ex):
+            if not ("Index build will be retried in background" in str(ex) or "Terminate Request during cleanup" in str(ex)):
                 self.fail("index building failed with error : {0}".format(str(ex)))
             else:
                 self.log.info("Index build failed with expected error")
+
+        finally:
+            # Heal network partition and wait for some time to allow indexes
+            # to get built automatically on that node
+            self.stop_firewall_on_node(node_out)
+            self.sleep(360)
+
+            index_map = self.get_index_map()
+            index_metadata = self.rest.get_indexer_metadata()
+            self.log.info("Indexer Metadata After Build:")
+            self.log.info(index_metadata)
+
+            index_details["defer_build"] = False
+
+            self.assertTrue(
+                self.validate_partitioned_indexes(index_details, index_map,
+                                                  index_metadata),
+                "Deferred Partitioned index created not as expected")
 
         
 
