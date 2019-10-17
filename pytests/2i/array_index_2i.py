@@ -97,6 +97,7 @@ class SecondaryIndexArrayIndexTests(BaseSecondaryIndexingTests):
         return query_definitions
 
     def test_aggregate_function(self):
+        self.rest.delete_bucket("default")
         self._create_bucket("aggregate_with_idx")
         self._create_bucket("aggregate_without_idx")
         bucket_with_idx = self.rest.get_bucket("aggregate_with_idx")
