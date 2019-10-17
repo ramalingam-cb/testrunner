@@ -44,6 +44,92 @@ class SecondaryIndexArrayIndexTests(BaseSecondaryIndexingTests):
                                                     verify_result=True)
         self.multi_drop_index_using_rest(
             buckets=self.buckets, query_definitions=self.query_definitions)
+        
+     
+    def _create_bucket(self, bucketname):
+        self.rest.create_bucket(bucket=bucketname, ramQuotaMB=100, authType="sasl",
+                                saslPassword="password")
+        ready = BucketOperationHelper.wait_for_memcached(self.master, bucketname)
+        self.assertTrue(ready, msg="wait_for_memcached failed")
+
+    def _load_aggregate_function_dataset(self, buckets=[]):
+        generators = []
+        document_template = '{{        "name":"{0}"   , "str_arr" : {1} , ' \
+                                      '"int_num": {2} , "int_arr": {3} , ' \
+                                    '"float_num" : {4} , "float_arr" : {5}    }}'
+        num_items = 1000
+        for i in range(num_items):
+            name = random.choice(FIRST_NAMES)
+            str_arr=[random.choice(COUNTRIES) for i in range(10)]
+            int_num = random.randint(0, 100)
+            int_arr = [random.randint(30, 100) for i in range(100)]
+            float_num = random.uniform(0.0,100.0)
+            float_arr = [random.uniform(30.0, 100.0) for i in range(100)]
+            doc_id = "student_" + str(random.random() * 100000)
+            generators.append(
+            DocumentGenerator(doc_id, document_template,
+                                  [name],[str_arr],
+                                  [int_num], [int_arr],
+                                  [float_num],[float_arr],
+                                  start=0, end=1))
+        self.load(generators, buckets=buckets, flag=self.item_flag,
+                  verify_data=False, batch_size=self.batch_size)
+        self.full_docs_list = self.generate_full_docs_list(generators)
+        self.gen_results = TuqGenerators(self.log, self.full_docs_list)
+
+    def generate_query_definition_for_aggr_data(self):
+        query_definitions = []
+        query_definition = QueryDefinition(
+            index_name="agg_func_int_arr",
+            index_fields=["int_num", "ALL ARRAY t FOR t in int_arr END"],
+            query_template="SELECT {0} int_num){1} FROM %s where any t in int_arr satisfies t > 50 end")
+        query_definitions.append(query_definition)
+        query_definition = QueryDefinition(
+            index_name="agg_func_float_arr",
+            index_fields=["float_num", "ALL ARRAY t FOR t in float_arr END"],
+            query_template="SELECT {0} float_num){1} FROM %s where any t in float_arr satisfies t > 50.0 end")
+        query_definitions.append(query_definition)
+        query_definition = QueryDefinition(
+            index_name="agg_func_str_arr",
+            index_fields=["name", "ALL ARRAY t FOR t in str_arr END"],
+            query_template="SELECT {0} name){1} FROM %s where any t in str_arr satisfies t = \"India\" end")
+        query_definitions.append(query_definition)
+        return query_definitions
+
+    def test_aggregate_function(self):
+        self._create_bucket("aggregate_with_idx")
+        self._create_bucket("aggregate_without_idx")
+        bucket_with_idx = self.rest.get_bucket("aggregate_with_idx")
+        bucket_without_idx = self.rest.get_bucket("aggregate_without_idx")
+        self._load_aggregate_function_dataset([bucket_with_idx, bucket_without_idx])
+        query_definitions = self.generate_query_definition_for_aggr_data()
+        self.multi_create_index_using_rest(buckets=[bucket_with_idx], query_definitions=query_definitions)
+        aggregate_functions = ["round(sum(","round(avg(","round(sum(distinct","round(avg(distinct","count(","countn(","min(","max(","array_agg(",
+                                "count(distinct", "countn(distinct", "array_agg(distinct"]
+        self.n1ql_helper.buckets=[bucket_without_idx]
+        self.n1ql_helper.create_primary_index()
+        wrong_results = []
+        function_count=0
+        for aggregate_function in aggregate_functions:
+            for query_definition in query_definitions:
+                paran=""
+                if function_count <= 3:
+                    paran=")"
+                query_with_idx = query_definition.generate_query(bucket=bucket_with_idx).format(aggregate_function,paran)
+                query_without_idx = query_definition.generate_query(bucket=bucket_without_idx).format(aggregate_function,paran)
+                expected_result = self.n1ql_helper.run_cbq_query(query=query_without_idx, server=self.n1ql_node)
+                msg, check = self.n1ql_helper.run_query_and_verify_result(query=query_with_idx, server=self.n1ql_node,
+                                                                          timeout=500,
+                                                                          expected_result=expected_result['results'],
+                                                                          scan_consistency="request_plus")
+                if not check:
+                    wrong_results.append(query_with_idx)
+            function_count+=1
+        self.assertEqual(len(wrong_results), 0, str(wrong_results))
+
+
+
+
 
     def test_simple_indexes_mutation(self):
         query_definitions = []
