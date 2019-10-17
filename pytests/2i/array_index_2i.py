@@ -19,6 +19,7 @@ log = logging.getLogger()
 class SecondaryIndexArrayIndexTests(BaseSecondaryIndexingTests):
     def setUp(self):
         super(SecondaryIndexArrayIndexTests, self).setUp()
+        log.info("in setup")
         self.doc_ops = self.input.param("doc_ops", True)
         self.index_field = self.input.param("index_field", "join_yr")
         self.restServer = self.get_nodes_from_services_map(service_type="index")
