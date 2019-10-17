@@ -1377,7 +1377,7 @@ class GSIIndexPartitioningTests(GSIReplicaIndexesTests):
             self.start_firewall_on_node(node_out)
             self.sleep(10)
             #self.n1ql_helper.run_cbq_query(query=build_index_query,
-                                           server=self.n1ql_node)
+            #                               server=self.n1ql_node)
         except Exception, ex:
             self.log.info(str(ex))
             if not "Index build will be retried in background" in str(ex):
