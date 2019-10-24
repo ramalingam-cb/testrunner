@@ -21,7 +21,31 @@ from pytests.tuqquery.tuq import QueryTests
 class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTests, NodeHelper,
                                       EnterpriseBackupRestoreBase):
     def setUp(self):
-         pass
+        super(SecondaryIndexingRebalanceTests, self).setUp()
+        self.rest = RestConnection(self.servers[0])
+        self.n1ql_server = self.get_nodes_from_services_map(service_type="n1ql", get_all_nodes=False)
+        self.create_primary_index = False
+        self.retry_time = self.input.param("retry_time", 300)
+        self.rebalance_out = self.input.param("rebalance_out", False)
+        self.sleep_time = self.input.param("sleep_time", 1)
+        self.num_retries = self.input.param("num_retries", 1)
+        self.build_index = self.input.param("build_index", False)
+        self.rebalance_out = self.input.param("rebalance_out", False)
+        shell = RemoteMachineShellConnection(self.servers[0])
+        info = shell.extract_remote_info().type.lower()
+        if info == 'linux':
+            self.cli_command_location = testconstants.LINUX_COUCHBASE_BIN_PATH
+        elif info == 'windows':
+            self.cmd_ext = ".exe"
+            self.cli_command_location = testconstants.WIN_COUCHBASE_BIN_PATH_RAW
+        elif info == 'mac':
+            self.cli_command_location = testconstants.MAC_COUCHBASE_BIN_PATH
+        else:
+            raise Exception("OS not supported.")
+        self.rand = random.randint(1, 1000000000)
+        self.alter_index = self.input.param("alter_index",None)
+        if self.ansi_join:
+            self.rest.load_sample("travel-sample")
 
 
     def tearDown(self):
