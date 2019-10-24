@@ -50,6 +50,11 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
     def tearDown(self):
         #super(SecondaryIndexingRebalanceTests, self).tearDown()
         pass
+    def test_rebalance_when_ddl_in_progress(self):
+      
+        log.info(str(self.n1ql_node))
+        log.info(str(self.servers))
+        pass
         
 
     def test_gsi_rebalance_out_indexer_node(self):
