@@ -32,6 +32,7 @@ class SecondaryIndexingRebalanceTests(BaseSecondaryIndexingTests, QueryHelperTes
       
         log.info(str(self.n1ql_node))
         log.info(str(self.servers))
+        log.info("hello world")
         pass
         
 
