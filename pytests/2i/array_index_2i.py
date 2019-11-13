@@ -99,6 +99,7 @@ class SecondaryIndexArrayIndexTests(BaseSecondaryIndexingTests):
         return query_definitions
 
     def test_aggregate_function(self):
+        self.sleep(1200)
         self.dgmServer = self.get_nodes_from_services_map(service_type="index")
         self.rest = RestConnection(self.dgmServer)
         self.gsi_type = self.input.param("gsi_type", 'plasma')
