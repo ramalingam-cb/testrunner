@@ -33,7 +33,8 @@ class SecondaryIndexArrayIndexTests(BaseSecondaryIndexingTests):
         self.add_built_in_server_user(testuser=testuser, rolelist=rolelist)
 
     def tearDown(self):
-        super(SecondaryIndexArrayIndexTests, self).tearDown()
+        #super(SecondaryIndexArrayIndexTests, self).tearDown()
+        pass
 
     def test_create_query_drop_all_array_index(self):
         self.multi_create_index_using_rest(
