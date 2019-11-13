@@ -98,40 +98,16 @@ class SecondaryIndexArrayIndexTests(BaseSecondaryIndexingTests):
         return query_definitions
 
     def test_aggregate_function(self):
-        self.rest.delete_bucket("default")
-        self._create_bucket("aggregate_with_idx")
-        self._create_bucket("aggregate_without_idx")
-        bucket_with_idx = self.rest.get_bucket("aggregate_with_idx")
-        bucket_without_idx = self.rest.get_bucket("aggregate_without_idx")
-        self._load_aggregate_function_dataset([bucket_with_idx, bucket_without_idx])
-        query_definitions = self.generate_query_definition_for_aggr_data()
-        self.multi_create_index_using_rest(buckets=[bucket_with_idx], query_definitions=query_definitions)
-        aggregate_functions = ["round(sum(","round(avg(","round(sum(distinct","round(avg(distinct","count(","countn(","min(","max(","array_agg(",
-                                "count(distinct", "countn(distinct", "array_agg(distinct"]
-        self.n1ql_helper.buckets=[bucket_without_idx]
-        self.n1ql_helper.create_primary_index()
-        wrong_results = []
-        function_count=0
-        for aggregate_function in aggregate_functions:
-            for query_definition in query_definitions:
-                paran=""
-                if function_count <= 3:
-                    paran=")"
-                query_with_idx = query_definition.generate_query(bucket=bucket_with_idx).format(aggregate_function,paran)
-                query_without_idx = query_definition.generate_query(bucket=bucket_without_idx).format(aggregate_function,paran)
-                expected_result = self.n1ql_helper.run_cbq_query(query=query_without_idx, server=self.n1ql_node)
-                msg, check = self.n1ql_helper.run_query_and_verify_result(query=query_with_idx, server=self.n1ql_node,
-                                                                          timeout=500,
-                                                                          expected_result=expected_result['results'],
-                                                                          scan_consistency="request_plus")
-                if not check:
-                    wrong_results.append(query_with_idx)
-            function_count+=1
-        self.assertEqual(len(wrong_results), 0, str(wrong_results))
-
-
-
-
+        self.dgmServer = self.get_nodes_from_services_map(service_type="index")
+        self.rest = RestConnection(self.dgmServer)
+        self.gsi_type = self.input.param("gsi_type", 'plasma')
+        self.plasma_dgm=True
+        query = "CREATE PRIMARY INDEX p1 on default USING GSI"
+        self.n1ql_helper.run_cbq_query(query=query,server=self.n1ql_node)
+        self.log.info(str(self.dgmServer))
+        self.sleep(600)
+        self.log.info("Doing DGM Scneario")
+        self.get_dgm_for_plasma(indexer_nodes=[self.dgmServer])
 
     def test_simple_indexes_mutation(self):
         query_definitions = []
