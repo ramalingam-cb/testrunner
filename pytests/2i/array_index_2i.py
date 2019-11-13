@@ -106,11 +106,10 @@ class SecondaryIndexArrayIndexTests(BaseSecondaryIndexingTests):
         self.plasma_dgm=True
         query = "CREATE PRIMARY INDEX p1 on default USING GSI"
         self.n1ql_helper.run_cbq_query(query=query,server=self.n1ql_node)
-        self.log.info("Doing DGM Scneario")
         self.log.info(str(self.dgmServer))
         self.log.info(str(self.index_quota_percent))
-        #self.log.info("Doing DGM Scneario")
-        #self.get_dgm_for_plasma(indexer_nodes=[self.dgmServer])
+        self.log.info("Doing DGM Scneario")
+        self.get_dgm_for_plasma(indexer_nodes=[self.dgmServer])
 
     def test_simple_indexes_mutation(self):
         query_definitions = []
