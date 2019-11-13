@@ -922,7 +922,7 @@ class BaseSecondaryIndexingTests(QueryTests):
                 log.info("========== DGM is achieved ==========")
                 return True
             kv_mutations(self, docs)
-            self.sleep(1)
+            #self.sleep(1)
             cnt += 1
             docs += 20
         return False
